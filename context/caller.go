@@ -9,22 +9,22 @@ import (
 	"github.com/Sirupsen/logrus"
 )
 
-// CallerHook 需要的钩子
 type CallerHook struct {
 }
 
-// Fire 实现
 func (hook *CallerHook) Fire(entry *logrus.Entry) error {
-	if len(entry.Data) == 0 { // if don't use withfields
-		entry.Data["caller"] = hook.caller(7)
-	} else { // if use withfields
-		entry.Data["caller"] = hook.caller(5)
+	switch len(entry.Data) {
+	case 0:
+		// used without logrus.WithFields
+		entry.Data["context"] = hook.caller(7)
+	default:
+		// used with logrus.WithFields
+		entry.Data["context"] = hook.caller(5)
 	}
 
 	return nil
 }
 
-// Levels 实现的级别
 func (hook *CallerHook) Levels() []logrus.Level {
 	return []logrus.Level{
 		logrus.PanicLevel,
@@ -36,11 +36,10 @@ func (hook *CallerHook) Levels() []logrus.Level {
 	}
 }
 
-// caller 带withfields的函数调用
 func (hook *CallerHook) caller(skip int) string {
 	if _, file, line, ok := runtime.Caller(skip); ok {
 		return strings.Join([]string{filepath.Base(file), strconv.Itoa(line)}, ":")
 	}
-	// not sure what the convention should be here
+	// Unable to determine caller
 	return "???"
 }

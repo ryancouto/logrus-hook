@@ -8,30 +8,26 @@ import (
 )
 
 func TestCaller(t *testing.T) {
-	// init
 	logrus.AddHook(&CallerHook{})
 	logrus.SetLevel(logrus.DebugLevel)
 	logrus.SetFormatter(&logrus.TextFormatter{})
 
-	// display log
 	logrus.Debug("debug info")
 	logrus.WithFields(logrus.Fields{
-		"name":   "john smith",
-		"age":    23,
-		"ismale": false,
-	}).Info("debug info")
+		"name": "john smith",
+		"age":  23,
+	}).Info("with fields debug info")
 
-	// logrus.Fatal("cool!") // 注释这一句，会日志的fatal会直接退出程序
-	logrus.Warn("cool")
-	logrus.WithField("class", 5).Warn("mybe cool")
+	logrus.Warn("warn")
+	logrus.WithField("class", 5).Warn("with fields warn")
 }
 
-func BenchmarkCaller(b *testing.B) {
-	// init
+func TestBenchmarkCaller(t *testing.T) {
 	filepath := "test_caller.log"
 	logrus.AddHook(&CallerHook{})
 	logrus.SetLevel(logrus.DebugLevel)
 	logrus.SetFormatter(&logrus.TextFormatter{})
+
 	fd, err := os.OpenFile(filepath, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0666)
 	if err != nil {
 		panic("open logfile failed!")
@@ -41,17 +37,15 @@ func BenchmarkCaller(b *testing.B) {
 
 	logrus.SetOutput(fd)
 
-	// test
-	for i := 0; i < b.N; i++ {
-		logrus.Debug("nice boy")
+	for i := 0; i < 10; i++ {
+		logrus.Debug("debug to file")
 	}
 }
 
-func BenchmarkWithField(b *testing.B) {
-	// init
+func TestBenchmarkCallerWithField(t *testing.T) {
 	filepath := "test_caller.log"
 	logrus.AddHook(&CallerHook{})
-	logrus.SetLevel(logrus.DebugLevel)
+	// logrus.SetLevel(logrus.DebugLevel)
 	logrus.SetFormatter(&logrus.TextFormatter{})
 	fd, err := os.OpenFile(filepath, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0666)
 	if err != nil {
@@ -61,14 +55,12 @@ func BenchmarkWithField(b *testing.B) {
 	defer fd.Close()
 	logrus.SetOutput(fd)
 
-	// test
-	for i := 0; i < b.N; i++ {
-		logrus.WithField("name", "john").Warn("is married")
+	for i := 0; i < 10; i++ {
+		logrus.WithField("name", "john").Debug("debug to file with field")
 	}
 }
 
-func BenchmarkWithFields(b *testing.B) {
-	// init
+func TestBenchmarkCallerWithFields(t *testing.T) {
 	filepath := "test_caller.log"
 	logrus.AddHook(&CallerHook{})
 	logrus.SetLevel(logrus.DebugLevel)
@@ -81,13 +73,11 @@ func BenchmarkWithFields(b *testing.B) {
 	defer fd.Close()
 	logrus.SetOutput(fd)
 
-	// test
-	for i := 0; i < b.N; i++ {
+	for i := 0; i < 10; i++ {
 		logrus.WithFields(logrus.Fields{
-			"name":   "john smith",
-			"age":    32,
-			"ismale": false,
-			"class":  3,
-		}).Info("record his info.")
+			"name":  "john smith",
+			"age":   32,
+			"class": 3,
+		}).Info("info to file with field")
 	}
 }
